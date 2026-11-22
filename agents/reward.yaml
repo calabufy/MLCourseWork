@@ -1,0 +1,4 @@
+rewards:
+  step: -1.0
+  out_of_bounds: -2.0
+  finish: 0.0
