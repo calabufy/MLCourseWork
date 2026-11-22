@@ -2,32 +2,20 @@ import yaml
 
 
 class GridWorld:
-    def __init__(self, size: tuple[int, int] = (10, 10), 
-                 start_point: tuple[int, int] = (0, 0),
-                 end_point: tuple[int, int] = (9, 9)) -> None:
+    def __init__(self, size: tuple[int, int] = (10, 10)) -> None:
         width, height = size
 
         if width <= 0 or height <= 0:
             raise ValueError("Please enter valid values " \
                              "for grid’s length and width.")
-        
+
+        self.start_point: tuple[int, int]
+        self.end_point: tuple[int, int]
         self.size = size
-
-        for x, y in (start_point, end_point):
-            if not (0 <= x < width and 0 <= y < height):
-                raise ValueError("Please enter valid start and " \
-                                 "finish values.")
-
-        if start_point == end_point:
-            raise ValueError("Start and finish must not be at " \
-                             "the same point.")
-        
-        self.start_point = start_point
-        self.end_point = end_point
-        self.grid = self._create_grid()
+        self.grid: list[list[str]]
 
         # 0 - up, 1 - down, 2 - left, 3 - right
-        self.actions = (
+        self.ACTIONS = (
             (0, -1), (0, 1), (-1, 0), (1, 0)
         )
 
@@ -59,15 +47,34 @@ class GridWorld:
         for row in self.grid:
             print(row, end="\n")
 
-    def step(self, action: int) -> tuple[tuple[int, int, int, int], 
-                                         float, bool, bool]:
+    def init_env(self, start_point: tuple[int, int] = (0, 0), 
+                 end_point: tuple[int, int] = (9, 9)) -> None:
+        """Initialising the environment for the agent."""
+        width, height = self.size
+        for x, y in (start_point, end_point):
+            if not (0 <= x < width and 0 <= y < height):
+                raise ValueError("Please enter valid start and " \
+                "finish values.")
+        
+            if start_point == end_point:
+                raise ValueError("Start and finish must not be at " \
+                "the same point.")
+                
+        self.start_point = start_point
+        self.end_point = end_point
+        self.grid = self._create_grid()
+        self.agent = start_point
+        
+
+    def step(self, action_idx: int) -> tuple[tuple[int, int, int, int], 
+                                             float, bool, bool]:
         """Executes agent’s turn, calculates new state, reward, 
         whether agent has gone out of bounds, or whether 
         episode has ended."""
-        if action not in len(self.actions):
+        if action_idx not in len(self.ACTIONS):
             raise ValueError("Incorrect move.")
 
-        dx, dy = self.actions[action]
+        dx, dy = self.ACTIONS[action_idx]
         x, y = self.agent
         next_position = (x + dx, y + dy)
         out_of_bounds = False
@@ -83,12 +90,14 @@ class GridWorld:
         return self._observation(), reward, out_of_bounds, done
 
     def _inside(self, position: tuple[int, int]) -> bool:
+        """Checking whether agent is inside the grid."""
         x, y = position
         width, height = self.size
         return 0 <= x < width and 0 <= y < height
 
 
     def _observation(self) -> tuple[int, int, int, int]:
+        """Calculation current state of environment."""
         x, y = self.agent
         finish_x, finish_y = self.end_point
         return x, y, finish_x, finish_y
