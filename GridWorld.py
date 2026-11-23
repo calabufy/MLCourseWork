@@ -48,7 +48,7 @@ class GridWorld:
             print(row, end="\n")
 
     def init_env(self, start_point: tuple[int, int] = (0, 0), 
-                 end_point: tuple[int, int] = (9, 9)) -> None:
+                 end_point: tuple[int, int] = (9, 9)) -> tuple[float, float, float, float]:
         """Initialising the environment for the agent."""
         width, height = self.size
         for x, y in (start_point, end_point):
@@ -64,14 +64,16 @@ class GridWorld:
         self.end_point = end_point
         self.grid = self._create_grid()
         self.agent = start_point
+
+        return self._observation()
         
 
-    def step(self, action_idx: int) -> tuple[tuple[int, int, int, int], 
+    def step(self, action_idx: int) -> tuple[tuple[float, float, float, float], 
                                              float, bool, bool]:
         """Executes agent’s turn, calculates new state, reward, 
         whether agent has gone out of bounds, or whether 
         episode has ended."""
-        if action_idx not in len(self.ACTIONS):
+        if action_idx not in range(len(self.ACTIONS)):
             raise ValueError("Incorrect move.")
 
         dx, dy = self.ACTIONS[action_idx]
@@ -102,4 +104,11 @@ class GridWorld:
         """Calculation current state of environment."""
         x, y = self.agent
         finish_x, finish_y = self.end_point
-        return x, y, finish_x, finish_y
+        width, height = self.size
+
+        return (
+            x / max(width - 1, 1),
+            y / max(height - 1, 1),
+            finish_x / max(width - 1, 1),
+            finish_y / max(height - 1, 1)
+            )

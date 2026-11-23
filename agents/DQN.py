@@ -28,11 +28,11 @@ class DQNAgent:
         model = tf.keras.Sequential([
             tf.keras.layers.Input(shape=(self.state_size,)),
             tf.keras.layers.Dense(64, activation="relu"),
-            tf.kears.layers.Dense(64, activation="relu"),
+            tf.keras.layers.Dense(64, activation="relu"),
             tf.keras.layers.Dense(self.action_state),
         ])
 
-        model.complete(
+        model.compile(
             optimizer=tf.kears.optimizers.Adam(learning_rate=learning_rate),
             loss=tf.keras.losses.Huber()
         )
@@ -41,9 +41,9 @@ class DQNAgent:
     def choose_action(self, state: np.ndarray, 
                       training: bool = True) -> int:
         if training and self.rng.random() < self.epsilon:
-            return self.rng.integers(0, self.action_state)
+            return int(self.rng.integers(0, self.action_state))
 
-        state_batch = state
+        state_batch = state.reshape(1, -1)
         q_values = self.model(state_batch, training=False)
         return int(np.argmax(q_values))
 
@@ -57,7 +57,10 @@ class DQNAgent:
         if len(self.memory) < self.batch_size:
             return
 
-        batch = self.rng.choice(self.memory, size=self.batch_size)
+        indices = self.rng.choice(
+             len(self.memory), size=self.batch_size, replace=False,
+             )
+        batch = [self.memory[int(i)] for i in indices]
         states, actions, rewards, next_states, out_of_bounds, dones = zip(*batch)
 
         states = np.asarray(states)
