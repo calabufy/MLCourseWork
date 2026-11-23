@@ -87,6 +87,8 @@ class GridWorld:
             reward = self.rewards["out_of_bounds"]
 
         done = self.agent == self.end_point
+        if done:
+            reward = self.rewards["finish"]
         return self._observation(), reward, out_of_bounds, done
 
     def _inside(self, position: tuple[int, int]) -> bool:
