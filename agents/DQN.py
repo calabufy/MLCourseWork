@@ -3,7 +3,7 @@ from collections import deque
 import numpy as np
 
 class DQNAgent:
-    def __int__(self, state_size: int = 4,
+    def __init__(self, state_size: int = 4,
                 action_size: int = 4, learning_rate: float = 0.001,
                 gamma: float = 0.99, epsilon: float = 1.0, 
                 epsilon_min: float = 0.05, epsilon_decay: float = 0.995,
@@ -33,18 +33,19 @@ class DQNAgent:
         ])
 
         model.compile(
-            optimizer=tf.kears.optimizers.Adam(learning_rate=learning_rate),
+            optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
             loss=tf.keras.losses.Huber()
         )
-        return model
+
+        self.model = model
 
     def choose_action(self, state: np.ndarray, 
                       training: bool = True) -> int:
         if training and self.rng.random() < self.epsilon:
             return int(self.rng.integers(0, self.action_state))
 
-        state_batch = state.reshape(1, -1)
-        q_values = self.model(state_batch, training=False)
+        state_batch = np.asarray(state).reshape(1, -1)
+        q_values = self.model(state_batch, training=False).numpy()
         return int(np.argmax(q_values))
 
     def remember(self, state: np.ndarray, action: int, reward: float,
@@ -77,7 +78,7 @@ class DQNAgent:
         max_next_q = np.max(next_q_values, axis=1)
 
         targets = rewards + self.gamma * max_next_q * (1 - dones)
-        q_values = self.model(states, training=False)
+        q_values = self.model(states, training=False).numpy()
         q_values[np.arange(self.batch_size), actions] = targets
 
         self.model.train_on_batch(states, q_values)
