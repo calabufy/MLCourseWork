@@ -22,6 +22,8 @@ class DQNAgent:
         self.model: tf.keras.Model
 
         self.rng = np.random.default_rng(random_state)
+        tf.keras.utils.set_random_seed(random_state)
+        tf.config.experimental.enable_op_determinism()
 
     def build_model(self, learning_rate: float = 0.001
                     ) -> tf.keras.Model:

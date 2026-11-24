@@ -49,7 +49,7 @@ class GridWorld:
 
     def init_env(self, start_point: tuple[int, int] = (0, 0), 
                  end_point: tuple[int, int] = (9, 9)) -> tuple[float, float, float, float]:
-        """Initialising the environment for the agent."""
+        """Initialising the environment for tаhe agent."""
         width, height = self.size
         for x, y in (start_point, end_point):
             if not (0 <= x < width and 0 <= y < height):
