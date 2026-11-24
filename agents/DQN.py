@@ -7,8 +7,11 @@ class DQNAgent:
                 action_size: int = 4, learning_rate: float = 0.001,
                 gamma: float = 0.99, epsilon: float = 1.0, 
                 epsilon_min: float = 0.05, epsilon_decay: float = 0.995,
-                memory_size: int = 10000, batch_size: int = 64, 
+                memory_size: int = 10000, batch_size: int = 64,
+                NN_layers: int = 2, NN_neurons: int = 64,
                 random_state: int = 42) -> None:
+        if NN_layers < 0 or NN_neurons <= 0:
+            raise ValueError("NN_layers must be non-negative and NN_neurons must be positive")
         self.state_size = state_size
         self.action_state = action_size
         self.learning_rate = learning_rate
@@ -17,6 +20,8 @@ class DQNAgent:
         self.epsilon_min = epsilon_min
         self.epsilon_decay = epsilon_decay
         self.batch_size = batch_size
+        self.NN_layers = NN_layers
+        self.NN_neurons = NN_neurons
 
         self.memory = deque(maxlen=memory_size)
         self.model: tf.keras.Model
@@ -27,12 +32,11 @@ class DQNAgent:
 
     def build_model(self, learning_rate: float = 0.001
                     ) -> tf.keras.Model:
-        model = tf.keras.Sequential([
-            tf.keras.layers.Input(shape=(self.state_size,)),
-            tf.keras.layers.Dense(64, activation="relu"),
-            tf.keras.layers.Dense(64, activation="relu"),
-            tf.keras.layers.Dense(self.action_state),
-        ])
+        model = tf.keras.Sequential()
+        model.add(tf.keras.layers.Input(shape=(self.state_size,)))
+        for _ in range(self.NN_layers):
+            model.add(tf.keras.layers.Dense(self.NN_neurons, activation="relu"))
+        model.add(tf.keras.layers.Dense(self.action_state))
 
         model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),

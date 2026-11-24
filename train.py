@@ -28,6 +28,8 @@ def train(
     epsilon_decay: float = 0.995,
     memory_size: int = 10000,
     batch_size: int = 64,
+    NN_layers: int = 2,
+    NN_neurons: int = 64,
 ) -> tuple[pd.DataFrame, Path]:
     """Train an agent and return episode logs and the run directory."""
     if size[0] <= 0 or size[1] <= 0 or sum(size) < 4:
@@ -52,6 +54,8 @@ def train(
         epsilon_decay=epsilon_decay,
         memory_size=memory_size,
         batch_size=batch_size,
+        NN_layers=NN_layers,
+        NN_neurons=NN_neurons,
         random_state=random_state,
     )
     agent.build_model(learning_rate=learning_rate)
