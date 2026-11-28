@@ -29,9 +29,9 @@ class GridWorld:
     def _create_grid(self) -> list[list[str]]:
         """Creating an environment based on specified parameters."""
         grid = []
-        for _ in range(self.size[0]):
+        for _ in range(self.size[1]):
             row = []
-            for _ in range(self.size[1]):
+            for _ in range(self.size[0]):
                 row.append('.')
             grid.append(row)
 
